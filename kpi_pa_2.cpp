@@ -3,6 +3,8 @@
 #include <time.h>
 #include <vector>
 #include <algorithm>
+#include <set>
+#include <numeric>
 #include "Graph.h"
 
 using namespace std;
@@ -14,9 +16,12 @@ using namespace std;
 
 void greedColor(Graph& graph);
 bool perfEval(vector<int>& _old, vector<int>& _new);
+vector<pair<int, int>> getRandVertSplit(Graph& graph, int scoutBee, int workerBee);
+vector<int> ABC(Graph& graph, int scoutBee, int workerBee);
 
 int main()
 {
+	srand(time(NULL));
 	Graph graph(defPath);
 
 	//Greedy algorithm
@@ -94,9 +99,44 @@ bool perfEval(vector<int>& _old, vector<int>& _new)
 		return false;
 }
 
-vector<int> ABC(Graph& graph,const int scoutBee,const int workerBee)
+vector<pair<int, int>> getRandVertSplit(Graph& graph, int scoutBee, int workerBee) //REDO split
 {
-	vector<int> abcColor(graph.color);
+	set<int> nums;
+	do
+	{
+		nums.insert(rand() % graph.getSize());
+	} while (nums.size() != scoutBee);
+	vector<pair<int, int>> beeDiv;
+	for(int it:nums)
+	{
+		beeDiv.push_back(make_pair(it, graph.pow[it]));
+	}
+	nums.clear();
+	sort(beeDiv.begin(), beeDiv.end(), [](const pair<int, int>& vert1, const pair<int, int>& vert2)
+		{
+			return vert1.second > vert2.second;
+		});
+	double total = 0, perOne;
+	for (int i = 0; i < beeDiv.size(); i++)
+	{
+		total += beeDiv[i].second;
+	}
+	perOne =  double(workerBee) / total;
+	total = 0;
+	for (int i = 0; i < beeDiv.size(); i++)
+	{
+		beeDiv[i].second = double(beeDiv[i].second) * perOne;
+		total += beeDiv[i].second;
+	}
+	if (int(total) < workerBee)
+		beeDiv[0].second++;
+	return beeDiv;
+}
 
+vector<int> ABC(Graph& graph, int scoutBee, int workerBee)
+{
+	//new color division
+	vector<int> abcColor(graph.color);
+	vector<pair<int, int>> beeDiv = getRandVertSplit(graph, scoutBee, workerBee);
 	return abcColor;
 }
