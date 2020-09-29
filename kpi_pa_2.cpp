@@ -121,6 +121,9 @@ vector<pair<int, int>> getRandVertSplit(Graph& graph, int scoutBee, int workerBe
 	{
 		total += beeDiv[i].second;
 	}
+	if (total < workerBee)
+		return beeDiv;
+
 	perOne =  double(workerBee) / total;
 	total = 0;
 	for (int i = 0; i < beeDiv.size(); i++)
@@ -128,8 +131,8 @@ vector<pair<int, int>> getRandVertSplit(Graph& graph, int scoutBee, int workerBe
 		beeDiv[i].second = double(beeDiv[i].second) * perOne;
 		total += beeDiv[i].second;
 	}
-	if (int(total) < workerBee)
-		beeDiv[0].second++;
+	if (workerBee - int(total) != 0)
+		beeDiv[0].second +=1;
 	return beeDiv;
 }
 
