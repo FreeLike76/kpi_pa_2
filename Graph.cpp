@@ -8,6 +8,8 @@ Graph::Graph(string path)
 	input >> size;
 
 	adj = new int* [size];
+	pow.resize(size, 0);
+	color.resize(size, -1);
 
 	for (int i = 0; i < size; i++)
 	{
@@ -15,6 +17,8 @@ Graph::Graph(string path)
 		for (int j = 0; j < size; j++)
 		{
 			input >> adj[i][j];
+			if (adj[i][j] == 1)
+				pow[i]++;
 		}
 	}
 	input.close();
@@ -28,6 +32,9 @@ Graph::~Graph()
 		delete[] adj[i];
 	}
 	delete[] adj;
+	adj = nullptr;
+	pow.clear();
+	color.clear();
 }
 
 int Graph::getSize()
