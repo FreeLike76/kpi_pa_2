@@ -8,19 +8,32 @@
 using namespace std;
 
 #define defPath "matrix.txt"
+#define defScoutBee 3
+#define defWorkerBee 32
+#define defMaxIter 1000
 
 void greedColor(Graph& graph);
+bool perfEval(vector<int>& _old, vector<int>& _new);
 
 int main()
 {
-    Graph graph(defPath);
+	Graph graph(defPath);
+
+	//Greedy algorithm
 	greedColor(graph);
-	for (int i = 0; i < graph.getSize(); i++)
-	{
-		cout << i << "\t" << graph.pow[i] << "\t" << graph.color[i] << endl;
-	}
 	auto colornum = max_element(graph.color.begin(), graph.color.end());
-	cout << "Total: " << *colornum + 1<< endl;
+	cout << "Total: " << *colornum + 1 << endl;
+
+	//ABC
+	for (int i = 0; i < defMaxIter; i++)
+	{
+		vector<int> abcColor = ABC(graph, defScoutBee, defWorkerBee);
+		if (perfEval(graph.color, abcColor))
+		{
+			graph.color.clear();
+			graph.color = move(abcColor);
+		}
+	}
 }
 
 void greedColor(Graph& graph)
@@ -69,4 +82,21 @@ void greedColor(Graph& graph)
 		}
 	}
 	vertOrder.clear();
+}
+
+bool perfEval(vector<int>& _old, vector<int>& _new)
+{
+	auto oldCount = max_element(_old.begin(), _old.end());
+	auto newCount = max_element(_new.begin(), _new.end());
+	if (*newCount < *oldCount)
+		return true;
+	else
+		return false;
+}
+
+vector<int> ABC(Graph& graph,const int scoutBee,const int workerBee)
+{
+	vector<int> abcColor(graph.color);
+
+	return abcColor;
 }
