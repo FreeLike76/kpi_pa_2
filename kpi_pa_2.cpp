@@ -26,11 +26,15 @@ int main()
 
 	//Greedy algorithm
 	greedColor(graph);
-	auto colornum = max_element(graph.color.begin(), graph.color.end());
-	cout << "Total: " << *colornum + 1 << endl;
+	cout << "Greedy total: " << graph.getColorCount() << endl;
+
+	//TEST////TEST//TEST//
+	/*graph.SETNEWCOLORS();
+	cout << "Total: " << graph.getColorCount() << endl;*/
+	//TEST////TEST//TEST//
 
 	//ABC
-	for (int i = 0; i < defMaxIter; i++)
+	for (int i = 0; i < 1000; i++)
 	{
 		vector<int> abcColor = ABC(graph, defScoutBee, defWorkerBee);
 		if (perfEval(graph.color, abcColor))
@@ -38,6 +42,7 @@ int main()
 			graph.color.clear();
 			graph.color = move(abcColor);
 		}
+		cout << "Total: " << graph.getColorCount() << endl;
 	}
 }
 
@@ -45,27 +50,19 @@ void greedColor(Graph& graph)
 {
 	//Getting the vert order for the greedy algorithm
 	//Pair (vertIndex, Pow)
-	vector<pair<int, int>> vertOrder;
-	for (int i = 0; i < graph.getSize(); i++)
-	{
-		vertOrder.push_back(make_pair(i, graph.pow[i]));
-	}
-	sort(vertOrder.begin(), vertOrder.end(), [](const pair<int, int>& vert1, const pair<int, int>& vert2)
-		{
-			return vert1.second > vert2.second;
-		});
+	
 
 	int color = 0;
 	bool paint = true;
 
 	for (int i = 0; i < graph.getSize(); i++)
 	{
-		if (graph.color[vertOrder[i].first] == -1)
+		if (graph.color[graph.vertOrder[i].first] == -1)
 		{
-			graph.color[vertOrder[i].first] = color;
+			graph.color[graph.vertOrder[i].first] = color;
 			for (int j = 0; j < graph.getSize(); j++)
 			{
-				if (graph.adj[vertOrder[i].first][j] == 0&&graph.color[j]==-1)
+				if (graph.adj[graph.vertOrder[i].first][j] == 0 && graph.color[j] == -1)//&&graph.color[j]==-1
 				{
 					for (int k = 0; k < graph.getSize(); k++)
 					{
@@ -86,7 +83,6 @@ void greedColor(Graph& graph)
 			color++;
 		}
 	}
-	vertOrder.clear();
 }
 
 bool perfEval(vector<int>& _old, vector<int>& _new)
@@ -141,5 +137,52 @@ vector<int> ABC(Graph& graph, int scoutBee, int workerBee)
 	//new color division
 	vector<int> abcColor(graph.color);
 	vector<pair<int, int>> beeDiv = getRandVertSplit(graph, scoutBee, workerBee);
+	for (int i = 0; i < beeDiv.size(); i++)
+	{
+		graph.color[beeDiv[i].first] = -1;
+		for (int j = 0; beeDiv[i].second != 0 ; j++)
+		{
+			if(graph.adj[beeDiv[i].first][graph.vertOrder[j].first]==1)
+			{
+				beeDiv[i].second--;
+				for (int color = 0; color < graph.getColorCount(); color++)
+				{
+					bool paint = true;
+					for (int k = 0; k < graph.getSize(); k++)
+					{
+						if (graph.adj[j][k] == 1 && graph.color[k] == color)
+						{
+							paint = false;
+							break;
+						}
+					}
+					if (paint)
+					{
+						graph.color[j] = color;
+						break;
+					}
+				}
+			}
+		}
+		for (int color = 0; color < graph.getColorCount(); color++)
+		{
+			bool paint = true;
+			for (int j = 0; j < graph.getSize(); j++)
+			{
+				if (graph.adj[beeDiv[i].first][j] == 1 && graph.color[j] == color)
+				{
+					paint = false;
+					break;
+				}
+			}
+			if (paint)
+			{
+				graph.color[beeDiv[i].first] = color;
+				break;
+			}
+		}
+		if (graph.color[beeDiv[i].first] == -1)
+			graph.color[beeDiv[i].first] = graph.getColorCount();
+	}
 	return abcColor;
 }
