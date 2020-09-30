@@ -142,9 +142,17 @@ vector<int> ABC(Graph& graph, int scoutBee, int workerBee)
 		graph.color[beeDiv[i].first] = -1;
 		for (int j = 0; beeDiv[i].second != 0 ; j++)
 		{
-			if(graph.adj[beeDiv[i].first][graph.vertOrder[j].first]==1)
+			if(graph.adj[beeDiv[i].first][graph.vertOrder[j].first]==1 )
 			{
 				beeDiv[i].second--;
+				bool isBlocked = false;
+				for (int check = 0; check < beeDiv.size(); check++)
+				{
+					if (beeDiv[check].first == graph.vertOrder[j].first)
+						isBlocked = true;
+				}
+				if (isBlocked)
+					continue;
 				for (int color = 0; color < graph.getColorCount(); color++)
 				{
 					bool paint = true;
